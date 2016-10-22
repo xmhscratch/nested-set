@@ -15,6 +15,11 @@ or reload the data using load method
 var tree = new NestedSet();
 tree.load(data);
 ```
+options
+```javascript
+var tree = new NestedSet(data, { leftKey: 'left', rightKey: 'right' });
+```
+
 
 convert nested set to adjacency hierachies
 ```javascript
