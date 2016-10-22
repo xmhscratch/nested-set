@@ -18,9 +18,7 @@ tree.load(data);
 
 convert nested set to adjacency hierachies
 ```javascript
-	var tree = new NestedSet(data);
-	console.log(
-		JSON.stringify(tree.toAdjacency())
-	);
+var tree = new NestedSet(data);
+console.log(tree.toAdjacency());
 ```
 
