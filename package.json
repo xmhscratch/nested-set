@@ -1,5 +1,5 @@
 {
-  "name": "nested-set",
+  "name": "nested-set-utils",
   "version": "1.0.0",
   "description": "Managing Hierarchical Data via Nested Set Model",
   "main": "index.js",
@@ -12,6 +12,7 @@
   },
   "keywords": [
     "nested-set",
+    "util",
     "tree",
     "hierarchical"
   ],

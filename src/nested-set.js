@@ -12,11 +12,11 @@ class NestedSet {
         this.collection = [];
         this.indexes = {};
     
-        this.load(data);
+        this.initialize(data);
         return this;
     }
 
-    load(data) {
+    initialize(data) {
         let self = this;
 
         // sort the set for deterministic order
