@@ -8,19 +8,19 @@ class NestedSet {
         this.options = {};
         this.options.leftKey = options.leftKey || 'left';
         this.options.rightKey = options.rightKey || 'right';
-    
+
         this.collection = [];
         this.indexes = {};
-    
-        this.initialize(data);
+
+        this.load(data);
         return this;
     }
 
-    initialize(data) {
+    load(data) {
         let self = this;
 
         // sort the set for deterministic order
-        data.sort(function(a, b) {
+        data.sort(function (a, b) {
             return a[self.options.leftKey] - b[self.options.leftKey];
         });
 
@@ -68,11 +68,11 @@ class NestedSet {
     toAdjacency() {
         let rootChild = this.getRoot();
 
-        let _traveseChildren = function(parentNode, memo) {
+        let _traveseChildren = function (parentNode, memo) {
             if (!parentNode.hasChildren()) return;
 
             memo.children = [];
-            return parentNode.children().forEach(function(node) {
+            return parentNode.children().forEach(function (node) {
                 let data = node.attributes;
                 _traveseChildren(node, data);
 
@@ -85,7 +85,6 @@ class NestedSet {
 
         return data;
     }
-
 }
 
 module.exports = NestedSet;
