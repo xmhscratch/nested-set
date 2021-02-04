@@ -1,90 +1,89 @@
-const Node = require('./node');
-const deepEqual = require('deep-equal');
+const Node = require('./node')
+const deepEqual = require('deep-equal')
 
 class NestedSet {
 
     constructor(data, options) {
-        options = options || {};
-        this.options = {};
-        this.options.leftKey = options.leftKey || 'left';
-        this.options.rightKey = options.rightKey || 'right';
+        options = options || {}
 
-        this.collection = [];
-        this.indexes = {};
+        this.options = {}
+        this.options.leftKey = options.leftKey || 'left'
+        this.options.rightKey = options.rightKey || 'right'
 
-        this.load(data);
-        return this;
+        this.collection = []
+        this.indexes = {}
+
+        this.load(data)
+        return this
     }
 
     load(data) {
-        let self = this;
-
         // sort the set for deterministic order
-        data.sort(function (a, b) {
-            return a[self.options.leftKey] - b[self.options.leftKey];
-        });
+        _.sortBy(data, (o) => {
+            return _.get(o, this.options.leftKey, 0)
+        })
+
+        // data.sort(function (a, b) {
+        //     return a[self.options.leftKey] - b[self.options.leftKey]
+        // })
 
         // create an index
-        for (let index in data) {
-            if (!data.hasOwnProperty(index)) {
-                continue;
-            }
-            let nodeRight = data[index][this.options.rightKey];
-            this.indexes[nodeRight] = index;
-        }
-
-        for (let index in data) {
-            if (!data.hasOwnProperty(index)) {
-                continue;
-            }
-            this.collection[index] = new Node(data[index], this);
-        }
+        _.forEach(data, (value, index) => {
+            if (!data.hasOwnProperty(index)) { return }
+            let nodeRight = _.get(value, this.options.rightKey, 0)
+            this.indexes = _.assignIn({}, this.indexes, {
+                [nodeRight]: index,
+            })
+            this.collection = _.assignIn({}, this.collection, {
+                [index]: new Node(value, this),
+            })
+        })
     }
 
     getSize() {
-        return this.collection.length;
+        return _.size(this.collection)
     }
 
     getRoot() {
-        for (let index in this.collection) {
-            if (this.collection[index].isRoot()) {
-                return this.collection[index];
-            }
-        }
-        return false;
+        return _
+            .chain(this.collection)
+            .filter(function (node) {
+                return node.isRoot()
+            })
+            .first()
+            .value()
     }
 
     findSingleNode(partial, strict) {
-        for (let index in this.collection) {
-            if (!this.collection.hasOwnProperty(index)) {
-                continue;
-            } else if (deepEqual(this.collection[index].attributes, partial)) {
-                return this.collection[index];
-            }
-        }
-        return false;
+        return _
+            .chain(this.collection)
+            .filter(function (node) {
+                return deepEqual(node.attributes, partial)
+            })
+            .first()
+            .value()
     }
 
     toAdjacency() {
-        let rootChild = this.getRoot();
+        let rootChild = this.getRoot()
 
         let _traveseChildren = function (parentNode, memo) {
-            if (!parentNode.hasChildren()) return;
+            if (!parentNode.hasChildren()) { return }
 
-            memo.children = [];
+            memo.children = []
             return parentNode.children().forEach(function (node) {
-                let data = node.attributes;
-                _traveseChildren(node, data);
+                let data = node.attributes
+                _traveseChildren(node, data)
 
-                return memo.children.push(data);
-            });
+                return memo.children.push(data)
+            })
         }
 
-        let data = rootChild.attributes;
-        _traveseChildren(rootChild, data);
+        let data = rootChild.attributes
+        _traveseChildren(rootChild, data)
 
-        return data;
+        return data
     }
 }
 
-module.exports = NestedSet;
+module.exports = NestedSet
