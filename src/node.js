@@ -1,95 +1,90 @@
 class Node {
 
     constructor(data, context) {
-        let self = this;
-        let leftKey = context.options.leftKey;
-        let rightKey = context.options.rightKey;
+        let leftKey = context.options.leftKey
+        let rightKey = context.options.rightKey
 
-        this.context = context;
-        this.left = data[leftKey];
-        this.right = data[rightKey];
-        this.attributes = {};
+        this.context = context
+        this.left = _.get(data, leftKey, -1)
+        this.right = _.get(data, rightKey, -1)
+        this.attributes = _.omit(data, [leftKey, rightKey])
 
-        Object.keys(data).forEach(function (prop) {
-            if (prop === leftKey) return;
-            if (prop === rightKey) return;
-            self.attributes[prop] = data[prop];
-        });
-
-        return this;
+        return this
     }
 
     parents() {
-        let parents = [];
-        let self = this;
+        let parents = []
 
-        this.context.collection.map(function (node) {
-            if (self.left <= node.left) return;
-            if (self.right >= node.right) return;
-            return parents.push(node);
-        });
+        _.forEach(this.context.collection, (node, index) => {
+            if (this.left <= node.left) return
+            if (this.right >= node.right) return
+            return parents.push(node)
+        })
 
-        return parents;
+        return parents
     }
 
     children() {
-        let children = [];
-        let right = this.right - 1;
+        let children = []
+        let right = this.right - 1
 
         while (true) {
-            if (right === this.left) {
-                break;
-            }
+            if (right === this.left) { break }
 
-            let child = this.context.collection[
-                this.context.indexes[right]
-            ];
-            children.push(child);
-            right = child.left - 1;
+            let child = _.get(
+                this.context.collection,
+                _.get(this.context.indexes, right),
+            )
+            if (!child) { break }
+
+            children.push(child)
+            right = child.left - 1
         }
 
-        return children.reverse();
+        return children.reverse()
     }
 
     descendants() {
-        let descendants = [];
-        let num_items = Math.floor((this.right - this.left) / 2);
+        let descendants = []
 
-        for (let right in this.context.indexes) {
+        _.forEach(this.context.indexes, (index, right) => {
+            right = _.parseInt(right)
+
             if (right < this.right && right > this.left) {
-                let node = this.context.collection[
-                    this.context.indexes[right]
-                ];
-                descendants.push(node);
+                let node = _.get(
+                    this.context.collection,
+                    _.get(this.context.indexes, right),
+                )
+                descendants.push(node)
             }
-        }
+        })
 
-        return descendants;
+        return descendants
     }
 
     isLeaf() {
-        return this.right === this.left + 1;
+        return _.isEqual(this.right, this.left + 1)
     }
 
     isRoot() {
-        return this.depth() === 0;
+        return _.isEqual(this.depth(), 0)
     }
 
     isParent() {
-        return false === this.isLeaf();
+        return _.isEqual(this.isLeaf(), false)
     }
 
     isDescendant() {
-        return (this.left > 0) && (this.right < (this.context.getSize() * 2));
+        return (this.left > 0) && (this.right < (this.context.getSize() * 2))
     }
 
     hasChildren() {
-        return this.children().length > 0;
+        return _.size(this.children() || []) > 0
     }
 
     depth() {
-        return this.parents().length;
+        return _.size(this.parents() || [])
     }
 }
 
-module.exports = Node;
+module.exports = Node
